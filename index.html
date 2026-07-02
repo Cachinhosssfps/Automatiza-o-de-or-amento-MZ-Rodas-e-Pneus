@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MZ Rodas e Pneus — Orçamento Automático</title>
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -397,25 +399,25 @@ const MARCAS = {
   luxo: ["BMW","Mercedes-Benz","Audi","Volvo","Land Rover","Porsche","Lexus"]
 };
 
-// Tabela de serviços: mão de obra fixa + faixa de peças (min-max), em R$
-// Esses valores são a BASE para carros populares (categoria "popular").
-// "sigla" é o texto curto mostrado no selo de cada serviço.
+// Tabela de serviços: preço "a partir de", em R$ (valor base para categoria "popular").
+// "sigla" é o texto curto mostrado no selo de cada serviço (usado só se não houver ícone).
 const SERVICOS = [
-  { id:"oleo", sigla:"OL", icon:"Troca de óleo e filtro.png", nome:"Troca de óleo e filtro", desc:"Óleo do motor + filtro de óleo", labor:60, partsMin:90, partsMax:160 },
-  { id:"pastilhas", sigla:"PF", icon:"Pastilhas de freio (eixo).png", nome:"Pastilhas de freio (eixo)", desc:"Um eixo, dianteiro ou traseiro", labor:80, partsMin:120, partsMax:280 },
-  { id:"alinhamento", sigla:"AL", icon:"Alinhamento e balanceamento.png", nome:"Alinhamento e balanceamento", desc:"4 rodas", labor:110, partsMin:0, partsMax:0 },
-  { id:"pneuNovo", sigla:"PN", icon:"Pneu.png", nome:"Pneu novo (unidade)", desc:"Inclui montagem e balanceamento", labor:40, partsMin:350, partsMax:900 },
-  { id:"pneuRemold", sigla:"PR", icon:"Pneu.png", nome:"Pneu remold (unidade)", desc:"Remoldado com borracha Vipal, inclui montagem e balanceamento", labor:40, partsMin:150, partsMax:320 },
-  { id:"jogoRodas", sigla:"JR", icon:"Jogo de rodas.png", nome:"Jogo de rodas (4 unidades)", desc:"Aro novo, inclui montagem", labor:80, partsMin:900, partsMax:2800 },
-  { id:"desempeno", sigla:"DR", icon:"Desempeno de roda.png", nome:"Desempeno de roda (unidade)", desc:"Correção de amassados/empenos no aro", labor:90, partsMin:0, partsMax:0 },
-  { id:"escapamento", sigla:"ES", icon:"Cano - escapamento silencioso.png", nome:"Cano / escapamento silencioso", desc:"Troca de cano ou silenciador", labor:90, partsMin:250, partsMax:700 }
+  { id:"oleo", sigla:"OL", icon:"Troca de óleo e filtro.png", nome:"Troca de óleo e filtro", desc:"Óleo do motor + filtro de óleo", price:160.00 },
+  { id:"pastilhas", sigla:"PF", icon:"Pastilhas de freio (eixo).png", nome:"Pastilhas de freio (eixo)", desc:"Um eixo, dianteiro ou traseiro", price:99.99 },
+  { id:"alinhamento", sigla:"AL", icon:"Alinhamento e balanceamento.png", nome:"Alinhamento e balanceamento", desc:"4 rodas", price:120.00 },
+  { id:"pneuNovo", sigla:"PN", icon:"Pneu.png", nome:"Pneu novo (unidade)", desc:"Inclui montagem e balanceamento", price:370.00 },
+  { id:"pneuRemold", sigla:"PR", icon:"Pneu.png", nome:"Pneu remold (unidade)", desc:"Remoldado com borracha Vipal, inclui montagem e balanceamento", price:175.00 },
+  { id:"jogoRodas", sigla:"JR", icon:"Jogo de rodas.png", nome:"Jogo de rodas (4 unidades)", desc:"Aro novo, inclui montagem", price:1200.00 },
+  { id:"desempeno", sigla:"DR", icon:"Desempeno de roda.png", nome:"Desempeno de roda (unidade)", desc:"Correção de amassados/empenos no aro", price:100.00 },
+  { id:"escapamento", sigla:"ES", icon:"Cano - escapamento silencioso.png", nome:"Cano / escapamento silencioso", desc:"Troca de cano ou silenciador", price:99.99 },
+  { id:"montagemPneu", sigla:"MP", icon:"Pneu.png", nome:"Montagem de pneu (unidade)", desc:"Montagem avulsa, pneu trazido pelo cliente", price:10.00 }
 ];
 
-// Multiplicadores por categoria de veículo (mão de obra e peças sobem juntas)
+// Multiplicador por categoria de veículo aplicado sobre o preço "a partir de"
 const MULT = {
-  popular: { labor:1.0, parts:1.0 },
-  intermediario: { labor:1.2, parts:1.35 },
-  luxo: { labor:1.5, parts:2.0 }
+  popular: 1.0,
+  intermediario: 1.2,
+  luxo: 1.5
 };
 
 /* ========================================================================= */
@@ -452,6 +454,10 @@ function initUI(){
   const logoEl = document.getElementById('logoBadge');
   if(CONFIG.logoUrl){
     logoEl.innerHTML = `<img src="${CONFIG.logoUrl}" alt="${CONFIG.shopName}">`;
+    const favicon = document.querySelector('link[rel="icon"]');
+    if(favicon) favicon.href = CONFIG.logoUrl;
+    const touchIcon = document.querySelector('link[rel="apple-touch-icon"]');
+    if(touchIcon) touchIcon.href = CONFIG.logoUrl;
   } else {
     logoEl.textContent = initials(CONFIG.shopName);
   }
@@ -505,17 +511,13 @@ function calcular(){
   const body = document.getElementById('resultBody');
   body.innerHTML = '';
 
-  let totalMin = 0, totalMax = 0;
+  let total = 0;
 
   checked.forEach(id=>{
     const s = SERVICOS.find(x=>x.id===id);
-    const labor = s.labor * mult.labor;
-    const pMin = s.partsMin * mult.parts * agingFactor;
-    const pMax = s.partsMax * mult.parts * agingFactor;
-    totalMin += labor + pMin;
-    totalMax += labor + pMax;
+    const preco = s.price * mult * agingFactor;
+    total += preco;
 
-    const partsCell = (s.partsMax === 0) ? 'Somente mão de obra' : `Peças: ${fmt(pMin)} – ${fmt(pMax)}`;
     const row = document.createElement('div');
     row.className = 'receipt-row';
     row.innerHTML = `
@@ -523,24 +525,24 @@ function calcular(){
         <div class="svc-icon${s.icon ? ' svc-icon--img' : ''}" style="width:44px;height:44px;font-size:.6rem;">${iconBadgeHTML(s)}</div>
         <div>
           <div class="receipt-name">${s.nome}</div>
-          <div style="font-size:.76rem;color:var(--muted);margin-top:2px;">${partsCell}</div>
+          <div style="font-size:.76rem;color:var(--muted);margin-top:2px;">${s.desc}</div>
         </div>
       </div>
       <div class="receipt-vals">
-        <span class="lbl">Mão de obra</span>
-        ${fmt(labor)}
+        <span class="lbl">A partir de</span>
+        ${fmt(preco)}
       </div>`;
     body.appendChild(row);
   });
 
-  document.getElementById('resultTotal').textContent = `${fmt(totalMin)} – ${fmt(totalMax)}`;
+  document.getElementById('resultTotal').textContent = `A partir de ${fmt(total)}`;
   document.getElementById('dataOrcamento').textContent = new Date().toLocaleDateString('pt-BR');
   document.getElementById('footerData').textContent = new Date().toLocaleDateString('pt-BR');
 
   const ageNote = document.getElementById('ageNote');
   if(agingFactor > 1){
     ageNote.style.display = 'block';
-    ageNote.textContent = `Veículo com mais de 15 anos: acréscimo de 10% aplicado ao valor de peças (disponibilidade/compatibilidade).`;
+    ageNote.textContent = `Veículo com mais de 15 anos: acréscimo de 10% aplicado (disponibilidade/compatibilidade de peças).`;
   } else {
     ageNote.style.display = 'none';
   }
@@ -553,7 +555,7 @@ function calcular(){
     const modelo = document.getElementById('modelo').value;
     const nomes = checked.map(id=>SERVICOS.find(x=>x.id===id).nome).join(', ');
     const texto = encodeURIComponent(
-      `Olá! Fiz uma simulação de orçamento no site da ${CONFIG.shopName}.\nVeículo: ${marca} ${modelo} ${ano||''}\nServiços: ${nomes}\nValor estimado: ${fmt(totalMin)} - ${fmt(totalMax)}\nGostaria de confirmar um horário.`
+      `Olá! Fiz uma simulação de orçamento no site da ${CONFIG.shopName}.\nVeículo: ${marca} ${modelo} ${ano||''}\nServiços: ${nomes}\nValor estimado: a partir de ${fmt(total)}\nGostaria de confirmar um horário.`
     );
     window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${texto}`, '_blank');
   };
