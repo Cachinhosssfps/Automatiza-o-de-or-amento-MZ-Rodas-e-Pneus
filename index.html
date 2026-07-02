@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MZ Rodas e Pneus — Orçamento Automático</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#0a0a0a;
+    --primary-light:#1c1c1c;
+    --accent:#f8e62c;
+    --accent-light:#fbef70;
+    --accent-ink:#161600;
+    --bg:#f5f5f3;
+    --card:#ffffff;
+    --text:#1a1a1a;
+    --muted:#767671;
+    --border:#e6e5e0;
+    --success:#1b7a43;
+    --success-bg:#e7f5ec;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Inter',-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(circle at 10% 0%, #eef2f8 0%, transparent 40%),
+      radial-gradient(circle at 90% 10%, #fbf6d8 0%, transparent 35%),
+      var(--bg);
+    color:var(--text);
+    line-height:1.55;
+    padding:28px 16px 70px;
+    min-height:100vh;
+  }
+  h1,h2,h3{font-family:'Poppins',sans-serif;}
+  .wrap{max-width:840px;margin:0 auto;}
+
+  /* ---------- HEADER ---------- */
+  header{
+    position:relative;
+    background:linear-gradient(135deg,var(--primary) 0%,#000000 100%);
+    color:#fff;
+    border-radius:20px;
+    padding:34px 32px 30px;
+    margin-bottom:28px;
+    overflow:hidden;
+    box-shadow:0 18px 40px -12px rgba(0,0,0,.45);
+  }
+  header::before{
+    content:"";
+    position:absolute;
+    top:-60px; right:-60px;
+    width:220px; height:220px;
+    background:radial-gradient(circle, rgba(248,230,44,.28) 0%, transparent 70%);
+  }
+  header::after{
+    content:"";
+    position:absolute;
+    bottom:-80px; left:20%;
+    width:260px; height:260px;
+    background:radial-gradient(circle, rgba(255,255,255,.06) 0%, transparent 70%);
+  }
+  .header-inner{position:relative;display:flex;align-items:center;gap:16px;}
+  .logo-badge{
+    flex:none;
+    width:58px;height:58px;
+    border-radius:16px;
+    background:#ffffff;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Poppins',sans-serif;
+    font-weight:800;
+    font-size:1.15rem;
+    color:var(--primary);
+    letter-spacing:.02em;
+    box-shadow:0 8px 20px -4px rgba(0,0,0,.35);
+    overflow:hidden;
+    padding:6px;
+  }
+  .logo-badge img{width:100%;height:100%;object-fit:contain;}
+  .header-text h1{font-size:1.55rem;font-weight:700;letter-spacing:-.01em;}
+  .header-text p{margin-top:5px;color:#b8b8b0;font-size:.92rem;}
+  .header-tag{
+    display:inline-flex;align-items:center;gap:6px;
+    margin-top:14px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.14);
+    padding:6px 12px;
+    border-radius:20px;
+    font-size:.76rem;
+    color:#dbe6f2;
+  }
+  .header-tag .dot{width:6px;height:6px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84;}
+  .header-address{
+    position:relative;
+    margin-top:12px;
+    font-size:.8rem;
+    color:#9aa5b3;
+    display:flex;align-items:center;gap:6px;
+  }
+  .header-address svg{flex:none;opacity:.8;}
+
+  /* ---------- STEPS ---------- */
+  .step-label{
+    display:flex;align-items:center;gap:10px;
+    margin-bottom:16px;
+  }
+  .step-num{
+    flex:none;
+    width:30px;height:30px;
+    border-radius:9px;
+    background:var(--primary);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Poppins',sans-serif;
+    font-weight:700;
+    font-size:.85rem;
+  }
+  .step-label h2{font-size:1.05rem;color:var(--primary);font-weight:700;}
+
+  /* ---------- CARDS ---------- */
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:26px 26px 24px;
+    margin-bottom:20px;
+    box-shadow:0 4px 18px -8px rgba(0,0,0,.06);
+  }
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media (max-width:560px){.grid{grid-template-columns:1fr;}}
+  label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
+  select,input{
+    width:100%;
+    padding:12px 14px;
+    border:1.5px solid var(--border);
+    border-radius:10px;
+    font-size:.94rem;
+    font-family:'Inter',sans-serif;
+    background:#fbfcfe;
+    color:var(--text);
+    transition:.15s;
+  }
+  select:hover,input:hover{border-color:#cbd5e1;}
+  select:focus,input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(248,230,44,.28);background:#fff;}
+  .field{margin-bottom:14px;}
+
+  /* ---------- SERVICES ---------- */
+  .services{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:4px;
+  }
+  @media (max-width:560px){.services{grid-template-columns:1fr;}}
+  .svc-item{
+    position:relative;
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    border:1.5px solid var(--border);
+    border-radius:14px;
+    padding:13px 14px;
+    cursor:pointer;
+    transition:.18s;
+    background:#fbfcfe;
+  }
+  .svc-item:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 6px 16px -8px rgba(248,230,44,.4);}
+  .svc-item.checked{border-color:var(--accent);background:#fffceb;box-shadow:0 6px 16px -8px rgba(248,230,44,.4);}
+  .svc-item input{display:none;}
+  .svc-icon{
+    flex:none;
+    width:56px;height:56px;
+    border-radius:14px;
+    background:var(--primary);
+    color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Poppins',sans-serif;
+    font-weight:700;
+    font-size:.72rem;
+    letter-spacing:.02em;
+  }
+  .svc-item.checked .svc-icon{background:var(--accent);color:var(--accent-ink);}
+  .svc-icon--img{background:#fff;border:1px solid var(--border);padding:5px;}
+  .svc-item.checked .svc-icon--img{background:#fff;border-color:var(--accent);}
+  .svc-name{font-size:.9rem;font-weight:600;color:var(--text);}
+  .svc-desc{font-size:.76rem;color:var(--muted);margin-top:2px;}
+  .svc-check{
+    position:absolute;top:10px;right:10px;
+    width:18px;height:18px;
+    border-radius:50%;
+    border:1.5px solid #d6dce5;
+    background:#fff;
+    display:flex;align-items:center;justify-content:center;
+    transition:.15s;
+  }
+  .svc-item.checked .svc-check{background:var(--accent);border-color:var(--accent);}
+  .svc-item.checked .svc-check svg{stroke:var(--accent-ink);}
+  .svc-check svg{width:11px;height:11px;stroke:#fff;stroke-width:3;fill:none;opacity:0;transition:.15s;}
+  .svc-item.checked .svc-check svg{opacity:1;}
+
+  /* ---------- BUTTONS ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:linear-gradient(135deg,var(--accent),#e9d61f);
+    color:var(--accent-ink);
+    border:none;
+    padding:15px 22px;
+    border-radius:12px;
+    font-size:.96rem;
+    font-weight:700;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+    width:100%;
+    box-shadow:0 10px 24px -8px rgba(248,230,44,.55);
+    transition:.18s;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px -8px rgba(248,230,44,.6);}
+  .btn.secondary{
+    background:transparent;
+    color:var(--primary);
+    border:1.5px solid var(--border);
+    box-shadow:none;
+  }
+  .btn.secondary:hover{border-color:var(--primary);background:#f7f9fc;transform:none;}
+  .btn.whats{background:linear-gradient(135deg,#25d366,#1da851);box-shadow:0 10px 24px -8px rgba(37,211,102,.5);}
+  .btn.whats:hover{box-shadow:0 14px 28px -8px rgba(37,211,102,.55);}
+
+  /* ---------- RESULT ---------- */
+  #result{display:none;}
+  #result.card{border:1.5px solid var(--accent);background:linear-gradient(180deg,#fff 0%,#fffdf0 100%);}
+  .result-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:8px;}
+  .result-header h2{color:var(--primary);font-size:1.15rem;}
+  .badge{
+    display:inline-flex;align-items:center;gap:5px;
+    font-size:.72rem;
+    font-weight:700;
+    padding:5px 12px;
+    border-radius:20px;
+    background:var(--success-bg);
+    color:var(--success);
+  }
+  .receipt-row{
+    display:flex;justify-content:space-between;align-items:flex-start;gap:12px;
+    padding:12px 0;
+    border-bottom:1px dashed var(--border);
+  }
+  .receipt-row:first-child{padding-top:0;}
+  .receipt-left{display:flex;align-items:center;gap:10px;}
+  .receipt-name{font-size:.9rem;font-weight:600;}
+  .receipt-vals{text-align:right;white-space:nowrap;font-size:.86rem;}
+  .receipt-vals .lbl{display:block;font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;}
+  .total-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-top:18px;margin-top:6px;
+    border-top:2px solid var(--primary);
+  }
+  .total-row .lbl{font-size:.95rem;font-weight:700;color:var(--primary);}
+  .total-row .val{font-family:'Poppins',sans-serif;font-size:1.35rem;font-weight:800;color:var(--primary);background:var(--accent);padding:3px 10px;border-radius:8px;}
+
+  .note{
+    background:#fff8ec;
+    border:1px solid #f3dfa6;
+    border-radius:12px;
+    padding:13px 15px;
+    font-size:.8rem;
+    color:#6b5217;
+    margin-top:18px;
+  }
+  .actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;}
+  .actions .btn{width:auto;flex:1;min-width:160px;}
+  footer{text-align:center;font-size:.78rem;color:var(--muted);margin-top:34px;}
+  footer strong{color:var(--primary);}
+
+  @media print{
+    body{background:#fff;padding:0;}
+    header, .card:not(#result), .actions, footer{display:none !important;}
+    #result{display:block !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="header-inner">
+      <div class="logo-badge" id="logoBadge"></div>
+      <div class="header-text">
+        <h1 id="shopName">MZ Rodas e Pneus</h1>
+        <p>Monte seu orçamento em segundos: escolha o veículo e os serviços desejados.</p>
+      </div>
+    </div>
+    <div class="header-tag"><span class="dot"></span> Cálculo automático e instantâneo</div>
+    <div class="header-address" id="headerAddress"></div>
+  </header>
+
+  <div class="step-label"><div class="step-num">1</div><h2>Dados do veículo</h2></div>
+  <div class="card">
+    <div class="grid">
+      <div class="field">
+        <label for="marca">Marca</label>
+        <select id="marca">
+          <option value="">Selecione…</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="modelo">Modelo</label>
+        <input id="modelo" type="text" placeholder="Ex: Onix, Corolla, Compass...">
+      </div>
+      <div class="field">
+        <label for="ano">Ano do veículo</label>
+        <input id="ano" type="number" placeholder="Ex: 2018" min="1970" max="2026">
+      </div>
+      <div class="field">
+        <label for="categoria">Categoria estimada</label>
+        <select id="categoria">
+          <option value="popular">Popular (Fiat, Chevrolet, VW, Renault, Hyundai, Ford)</option>
+          <option value="intermediario">Intermediário (Toyota, Honda, Jeep, Nissan, Peugeot)</option>
+          <option value="luxo">Importado / Luxo (BMW, Mercedes, Audi, Volvo, Land Rover)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-label"><div class="step-num">2</div><h2>Serviços desejados</h2></div>
+  <div class="card">
+    <div class="services" id="servicesList"></div>
+  </div>
+
+  <div class="step-label"><div class="step-num">3</div><h2>Seus dados <span style="color:var(--muted);font-weight:400;font-size:.8rem;">(opcional)</span></h2></div>
+  <div class="card">
+    <div class="grid">
+      <div class="field">
+        <label for="clienteNome">Nome</label>
+        <input id="clienteNome" type="text" placeholder="Seu nome">
+      </div>
+      <div class="field">
+        <label for="clienteContato">WhatsApp / e-mail</label>
+        <input id="clienteContato" type="text" placeholder="Contato para retorno">
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" id="calcularBtn">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    Calcular orçamento
+  </button>
+
+  <div class="card" id="result">
+    <div class="result-header">
+      <h2>Orçamento estimado</h2>
+      <span class="badge" id="dataOrcamento"></span>
+    </div>
+    <div id="resultBody"></div>
+    <div class="total-row">
+      <span class="lbl">Total estimado</span>
+      <span class="val" id="resultTotal"></span>
+    </div>
+    <div class="note" id="ageNote" style="display:none;"></div>
+    <div class="note">
+      Este valor é uma <strong>estimativa automática</strong> baseada em faixas médias de mercado para o modelo/categoria informados. O orçamento final pode variar após avaliação presencial do veículo.
+    </div>
+    <div class="actions">
+      <button class="btn secondary" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir / Salvar PDF
+      </button>
+      <button class="btn whats" id="whatsBtn">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.04 2c-5.523 0-10 4.477-10 10 0 1.76.454 3.417 1.253 4.86L2 22l5.256-1.379a9.96 9.96 0 004.784 1.219h.005c5.522 0 9.999-4.477 9.999-10 0-2.673-1.041-5.185-2.93-7.074A9.936 9.936 0 0012.04 2z"/></svg>
+        Enviar pelo WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <footer><strong id="footerShop">MZ Rodas e Pneus</strong> · <span id="footerAddress"></span> · Orçamento gerado automaticamente em <span id="footerData"></span></footer>
+</div>
+
+<script>
+/* =========================================================================
+   CONFIGURAÇÃO DA OFICINA — edite os valores abaixo conforme sua realidade
+   Para usar a logo da loja, coloque o arquivo de imagem na mesma pasta
+   deste HTML e preencha logoUrl com o nome do arquivo (ex: "logo.png").
+   Enquanto logoUrl estiver vazio, um selo com as iniciais da loja é usado.
+   ========================================================================= */
+const CONFIG = {
+  shopName: "MZ Rodas e Pneus",
+  whatsappNumber: "5521990095418", // número da oficina, com DDI+DDD, só dígitos
+  logoUrl: "logo.png",
+  address: "R. Barão de Capanema, 134 - Bangu, Rio de Janeiro"
+};
+
+// Marcas por categoria (usado para sugerir a categoria automaticamente)
+const MARCAS = {
+  popular: ["Fiat","Chevrolet","Volkswagen","Renault","Hyundai","Ford","Citroën","Peugeot"],
+  intermediario: ["Toyota","Honda","Jeep","Nissan","Mitsubishi","Kia"],
+  luxo: ["BMW","Mercedes-Benz","Audi","Volvo","Land Rover","Porsche","Lexus"]
+};
+
+// Tabela de serviços: mão de obra fixa + faixa de peças (min-max), em R$
+// Esses valores são a BASE para carros populares (categoria "popular").
+// "sigla" é o texto curto mostrado no selo de cada serviço.
+const SERVICOS = [
+  { id:"oleo", sigla:"OL", icon:"Troca de óleo e filtro.png", nome:"Troca de óleo e filtro", desc:"Óleo do motor + filtro de óleo", labor:60, partsMin:90, partsMax:160 },
+  { id:"pastilhas", sigla:"PF", icon:"Pastilhas de freio (eixo).png", nome:"Pastilhas de freio (eixo)", desc:"Um eixo, dianteiro ou traseiro", labor:80, partsMin:120, partsMax:280 },
+  { id:"alinhamento", sigla:"AL", icon:"Alinhamento e balanceamento.png", nome:"Alinhamento e balanceamento", desc:"4 rodas", labor:110, partsMin:0, partsMax:0 },
+  { id:"pneuNovo", sigla:"PN", icon:"Pneu.png", nome:"Pneu novo (unidade)", desc:"Inclui montagem e balanceamento", labor:40, partsMin:350, partsMax:900 },
+  { id:"pneuRemold", sigla:"PR", icon:"Pneu.png", nome:"Pneu remold (unidade)", desc:"Remoldado com borracha Vipal, inclui montagem e balanceamento", labor:40, partsMin:150, partsMax:320 },
+  { id:"jogoRodas", sigla:"JR", icon:"Jogo de rodas.png", nome:"Jogo de rodas (4 unidades)", desc:"Aro novo, inclui montagem", labor:80, partsMin:900, partsMax:2800 },
+  { id:"desempeno", sigla:"DR", icon:"Desempeno de roda.png", nome:"Desempeno de roda (unidade)", desc:"Correção de amassados/empenos no aro", labor:90, partsMin:0, partsMax:0 },
+  { id:"escapamento", sigla:"ES", icon:"Cano - escapamento silencioso.png", nome:"Cano / escapamento silencioso", desc:"Troca de cano ou silenciador", labor:90, partsMin:250, partsMax:700 }
+];
+
+// Multiplicadores por categoria de veículo (mão de obra e peças sobem juntas)
+const MULT = {
+  popular: { labor:1.0, parts:1.0 },
+  intermediario: { labor:1.2, parts:1.35 },
+  luxo: { labor:1.5, parts:2.0 }
+};
+
+/* ========================================================================= */
+
+function fmt(v){
+  return v.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+}
+
+function iconBadgeHTML(s, size){
+  if(s.icon){
+    return `<img src="${encodeURI(s.icon)}" alt="${s.nome}" style="width:100%;height:100%;object-fit:contain;">`;
+  }
+  return s.sigla;
+}
+
+function initials(name){
+  const words = name.split(/\s+/).filter(Boolean);
+  // se a primeira palavra já é uma sigla/monograma (ex: "MZ"), usa ela direto
+  if(words[0] && /^[A-Z]{2,4}$/.test(words[0])) return words[0];
+  return words.slice(0,2).map(w=>w[0].toUpperCase()).join('');
+}
+
+function initUI(){
+  document.getElementById('shopName').textContent = CONFIG.shopName;
+  document.getElementById('footerShop').textContent = CONFIG.shopName;
+  document.title = CONFIG.shopName + " — Orçamento Automático";
+
+  if(CONFIG.address){
+    document.getElementById('headerAddress').innerHTML =
+      `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> ${CONFIG.address}`;
+    document.getElementById('footerAddress').textContent = CONFIG.address;
+  }
+
+  const logoEl = document.getElementById('logoBadge');
+  if(CONFIG.logoUrl){
+    logoEl.innerHTML = `<img src="${CONFIG.logoUrl}" alt="${CONFIG.shopName}">`;
+  } else {
+    logoEl.textContent = initials(CONFIG.shopName);
+  }
+
+  const marcaSel = document.getElementById('marca');
+  Object.keys(MARCAS).forEach(cat=>{
+    MARCAS[cat].forEach(m=>{
+      const opt = document.createElement('option');
+      opt.value = m; opt.dataset.cat = cat; opt.textContent = m;
+      marcaSel.appendChild(opt);
+    });
+  });
+  marcaSel.addEventListener('change', ()=>{
+    const opt = marcaSel.selectedOptions[0];
+    if(opt && opt.dataset.cat){
+      document.getElementById('categoria').value = opt.dataset.cat;
+    }
+  });
+
+  const list = document.getElementById('servicesList');
+  SERVICOS.forEach(s=>{
+    const label = document.createElement('label');
+    label.className = 'svc-item';
+    label.innerHTML = `
+      <input type="checkbox" value="${s.id}">
+      <div class="svc-icon${s.icon ? ' svc-icon--img' : ''}">${iconBadgeHTML(s)}</div>
+      <div>
+        <div class="svc-name">${s.nome}</div>
+        <div class="svc-desc">${s.desc}</div>
+      </div>
+      <div class="svc-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>`;
+    const cb = label.querySelector('input');
+    cb.addEventListener('change', ()=> label.classList.toggle('checked', cb.checked));
+    list.appendChild(label);
+  });
+}
+
+function calcular(){
+  const checked = Array.from(document.querySelectorAll('#servicesList input:checked')).map(c=>c.value);
+  if(checked.length === 0){
+    alert('Selecione ao menos um serviço.');
+    return;
+  }
+  const categoria = document.getElementById('categoria').value || 'popular';
+  const ano = parseInt(document.getElementById('ano').value, 10);
+  const anoAtual = new Date().getFullYear();
+  const idade = (!isNaN(ano) && ano > 1900) ? (anoAtual - ano) : null;
+  const agingFactor = (idade !== null && idade > 15) ? 1.10 : 1.0;
+
+  const mult = MULT[categoria];
+  const body = document.getElementById('resultBody');
+  body.innerHTML = '';
+
+  let totalMin = 0, totalMax = 0;
+
+  checked.forEach(id=>{
+    const s = SERVICOS.find(x=>x.id===id);
+    const labor = s.labor * mult.labor;
+    const pMin = s.partsMin * mult.parts * agingFactor;
+    const pMax = s.partsMax * mult.parts * agingFactor;
+    totalMin += labor + pMin;
+    totalMax += labor + pMax;
+
+    const partsCell = (s.partsMax === 0) ? 'Somente mão de obra' : `Peças: ${fmt(pMin)} – ${fmt(pMax)}`;
+    const row = document.createElement('div');
+    row.className = 'receipt-row';
+    row.innerHTML = `
+      <div class="receipt-left">
+        <div class="svc-icon${s.icon ? ' svc-icon--img' : ''}" style="width:44px;height:44px;font-size:.6rem;">${iconBadgeHTML(s)}</div>
+        <div>
+          <div class="receipt-name">${s.nome}</div>
+          <div style="font-size:.76rem;color:var(--muted);margin-top:2px;">${partsCell}</div>
+        </div>
+      </div>
+      <div class="receipt-vals">
+        <span class="lbl">Mão de obra</span>
+        ${fmt(labor)}
+      </div>`;
+    body.appendChild(row);
+  });
+
+  document.getElementById('resultTotal').textContent = `${fmt(totalMin)} – ${fmt(totalMax)}`;
+  document.getElementById('dataOrcamento').textContent = new Date().toLocaleDateString('pt-BR');
+  document.getElementById('footerData').textContent = new Date().toLocaleDateString('pt-BR');
+
+  const ageNote = document.getElementById('ageNote');
+  if(agingFactor > 1){
+    ageNote.style.display = 'block';
+    ageNote.textContent = `Veículo com mais de 15 anos: acréscimo de 10% aplicado ao valor de peças (disponibilidade/compatibilidade).`;
+  } else {
+    ageNote.style.display = 'none';
+  }
+
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth', block:'start'});
+
+  document.getElementById('whatsBtn').onclick = ()=>{
+    const marca = document.getElementById('marca').value;
+    const modelo = document.getElementById('modelo').value;
+    const nomes = checked.map(id=>SERVICOS.find(x=>x.id===id).nome).join(', ');
+    const texto = encodeURIComponent(
+      `Olá! Fiz uma simulação de orçamento no site da ${CONFIG.shopName}.\nVeículo: ${marca} ${modelo} ${ano||''}\nServiços: ${nomes}\nValor estimado: ${fmt(totalMin)} - ${fmt(totalMax)}\nGostaria de confirmar um horário.`
+    );
+    window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${texto}`, '_blank');
+  };
+}
+
+document.getElementById('calcularBtn').addEventListener('click', calcular);
+initUI();
+</script>
+</body>
+</html>
